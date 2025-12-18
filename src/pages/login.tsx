@@ -8,6 +8,8 @@ import { Label } from '@/components/ui/label';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Mail01Icon, LockIcon, Loading01Icon } from '@hugeicons/core-free-icons';
 
+import { Logo } from '@/components/logo';
+
 export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -34,13 +36,17 @@ export function LoginPage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-neutral-50 p-4 dark:bg-neutral-950">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">后台管理系统</CardTitle>
-          <CardDescription>
-            使用超级用户账号登录
-          </CardDescription>
-        </CardHeader>
+      <div className="w-full max-w-md space-y-8">
+        <div className="flex justify-center">
+          <Logo className="scale-125" />
+        </div>
+        <Card className="w-full">
+          <CardHeader className="space-y-1 text-center">
+            <CardTitle className="text-2xl font-bold">后台管理系统</CardTitle>
+            <CardDescription>
+              使用超级用户账号登录
+            </CardDescription>
+          </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {error && (
@@ -86,6 +92,8 @@ export function LoginPage() {
           </form>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }
+

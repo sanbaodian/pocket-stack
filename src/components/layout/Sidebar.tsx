@@ -11,6 +11,7 @@ import {
   Logout01Icon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '@/components/auth-provider';
+import { Logo } from '@/components/logo';
 
 interface MenuItem {
   title: string;
@@ -59,9 +60,7 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 z-40 h-screen w-64 border-r border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-950">
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-neutral-200 px-6 dark:border-neutral-800">
-        <h1 className="text-xl font-bold text-neutral-900 dark:text-neutral-50">
-          Admin 后台
-        </h1>
+        <Logo />
       </div>
 
       {/* Navigation */}
