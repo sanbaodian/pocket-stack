@@ -28,13 +28,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // 验证当前的 auth token
     const initAuth = async () => {
+      if (!pb.authStore.isValid) {
+        setIsLoading(false);
+        return;
+      }
+
       try {
-        if (pb.authStore.isValid) {
-          // 刷新 auth 以确保仍然有效
-          await pb.collection('_superusers').authRefresh();
+        // 刷新 auth 以确保仍然有效
+        await pb.collection('_superusers').authRefresh();
+      } catch (err: any) {
+        console.error('Auth refresh failed:', err);
+        // 只有在明确的 401/403 认证错误时才清空，防止网络抖动导致登出
+        if (err?.status === 401 || err?.status === 403) {
+          pb.authStore.clear();
+          setUser(null);
+          setIsValid(false);
         }
-      } catch {
-        pb.authStore.clear();
       } finally {
         setIsLoading(false);
       }
@@ -45,11 +54,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string) => {
     // 尝试作为超级用户登录
-    await pb.collection('_superusers').authWithPassword(email, password);
+    const authData = await pb.collection('_superusers').authWithPassword(email, password);
+    setUser(authData.record);
+    setIsValid(true);
   };
 
   const logout = () => {
     pb.authStore.clear();
+    setUser(null);
+    setIsValid(false);
   };
 
   return (
