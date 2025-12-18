@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -6,17 +7,21 @@ import {
   UserIcon,
   Settings01Icon,
   ChartLineData01Icon,
-  FileEditIcon,
   ShoppingCart01Icon,
   Logout01Icon,
+  ArrowDown01Icon,
 } from '@hugeicons/core-free-icons';
 import { useAuth } from '@/components/auth-provider';
 import { Logo } from '@/components/logo';
 
 interface MenuItem {
   title: string;
-  path: string;
-  icon: any;
+  path?: string;
+  icon: React.ElementType;
+  children?: {
+    title: string;
+    path: string;
+  }[];
 }
 
 const menuItems: MenuItem[] = [
@@ -31,9 +36,12 @@ const menuItems: MenuItem[] = [
     icon: UserIcon,
   },
   {
-    title: '数据分析',
-    path: '/analytics',
+    title: '数据中心',
     icon: ChartLineData01Icon,
+    children: [
+      { title: '数据分析', path: '/analytics' },
+      { title: '文档中心', path: '/documents' },
+    ],
   },
   {
     title: '订单管理',
@@ -41,16 +49,105 @@ const menuItems: MenuItem[] = [
     icon: ShoppingCart01Icon,
   },
   {
-    title: '文档中心',
-    path: '/documents',
-    icon: FileEditIcon,
-  },
-  {
     title: '系统设置',
-    path: '/settings',
     icon: Settings01Icon,
+    children: [
+      { title: '基本设置', path: '/settings' },
+      { title: '个人信息', path: '/profile' },
+    ],
   },
 ];
+
+function NavItem({ item, location }: { item: MenuItem; location: ReturnType<typeof useLocation> }) {
+  const hasChildren = !!item.children;
+  const isChildActive = item.children?.some(child => location.pathname === child.path);
+  const [isOpen, setIsOpen] = useState(isChildActive);
+  
+  const isActive = item.path ? location.pathname === item.path : false;
+
+  if (!hasChildren) {
+    return (
+      <Link
+        to={item.path!}
+        className={cn(
+          'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+          isActive
+            ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400'
+            : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-900'
+        )}
+      >
+        <HugeiconsIcon
+          icon={item.icon}
+          className={cn(
+            'h-5 w-5',
+            isActive
+              ? 'text-blue-600 dark:text-blue-400'
+              : 'text-neutral-500 dark:text-neutral-400'
+          )}
+        />
+        <span>{item.title}</span>
+      </Link>
+    );
+  }
+
+  return (
+    <div className="space-y-1">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          'flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+          isChildActive
+            ? 'text-blue-600 dark:text-blue-400'
+            : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-900'
+        )}
+      >
+        <div className="flex items-center gap-3">
+          <HugeiconsIcon
+            icon={item.icon}
+            className={cn(
+              'h-5 w-5',
+              isChildActive
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-neutral-500 dark:text-neutral-400'
+            )}
+          />
+          <span>{item.title}</span>
+        </div>
+        <HugeiconsIcon
+          icon={ArrowDown01Icon}
+          className={cn(
+            'h-4 w-4 transition-transform duration-200',
+            isOpen ? 'rotate-180' : ''
+          )}
+        />
+      </button>
+
+      {isOpen && (
+        <div className="space-y-1">
+          {item.children?.map((child) => {
+            const isChildActive = location.pathname === child.path;
+            return (
+              <Link
+                key={child.path}
+                to={child.path}
+                className={cn(
+                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                  isChildActive
+                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400'
+                    : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-900'
+                )}
+              >
+                {/* 占位符空间，确保文字与带图标的一级菜单对齐 (w-5 图标 + gap-3 = 32px) */}
+                <div className="w-5" />
+                <span>{child.title}</span>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function Sidebar() {
   const location = useLocation();
@@ -64,38 +161,14 @@ export function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="space-y-1 p-4">
-        {menuItems.map((item) => {
-          const isActive = location.pathname === item.path;
-
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
-                isActive
-                  ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400'
-                  : 'text-neutral-700 hover:bg-neutral-100 dark:text-neutral-300 dark:hover:bg-neutral-900'
-              )}
-            >
-              <HugeiconsIcon
-                icon={item.icon}
-                className={cn(
-                  'h-5 w-5',
-                  isActive
-                    ? 'text-blue-600 dark:text-blue-400'
-                    : 'text-neutral-500 dark:text-neutral-400'
-                )}
-              />
-              <span>{item.title}</span>
-            </Link>
-          );
-        })}
+      <nav className="space-y-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - 8rem)' }}>
+        {menuItems.map((item, index) => (
+          <NavItem key={index} item={item} location={location} />
+        ))}
       </nav>
 
       {/* Footer */}
-      <div className="absolute bottom-0 left-0 right-0 border-t border-neutral-200 p-4 dark:border-neutral-800">
+      <div className="absolute bottom-0 left-0 right-0 border-t border-neutral-200 p-4 dark:border-neutral-800 bg-white dark:bg-neutral-950">
         <div className="flex items-center gap-3 rounded-lg bg-neutral-50 px-3 py-2.5 dark:bg-neutral-900 group">
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
             {user?.email?.charAt(0).toUpperCase() || 'A'}
@@ -120,3 +193,4 @@ export function Sidebar() {
     </aside>
   );
 }
+
