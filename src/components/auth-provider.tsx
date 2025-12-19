@@ -4,6 +4,7 @@ import type { AuthModel } from 'pocketbase';
 
 interface AuthContextType {
   user: AuthModel | null;
+  isSuperAdmin: boolean;
   isValid: boolean;
   login: (email: string, password: string, isSuperAdmin?: boolean) => Promise<void>;
   logout: () => void;
@@ -17,11 +18,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isValid, setIsValid] = useState(pb.authStore.isValid);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 判断是否为超级管理员
+  const checkIsSuperAdmin = (model: AuthModel | null) => {
+    if (!model) return false;
+    // PocketBase 超级管理员通常在 _superusers 集合，或者没有 collectionId 但有 email
+    return model.collectionName === '_superusers' || (model.username && !model.collectionId);
+  };
+
+  const [isSuperAdmin, setIsSuperAdmin] = useState(checkIsSuperAdmin(pb.authStore.model));
+
   useEffect(() => {
     // 监听 authStore 的变化
     return pb.authStore.onChange((token, model) => {
       setUser(model);
       setIsValid(!!token);
+      setIsSuperAdmin(checkIsSuperAdmin(model));
     });
   }, []);
 
@@ -46,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           pb.authStore.clear();
           setUser(null);
           setIsValid(false);
+          setIsSuperAdmin(false);
         }
       } finally {
         setIsLoading(false);
@@ -55,22 +67,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string, isSuperAdmin: boolean = false) => {
+  const login = async (email: string, password: string, isSuperAdminLogin: boolean = false) => {
     // 根据选择尝试不同类型的登录
-    const collectionName = isSuperAdmin ? '_superusers' : 'users';
+    const collectionName = isSuperAdminLogin ? '_superusers' : 'users';
     const authData = await pb.collection(collectionName).authWithPassword(email, password);
     setUser(authData.record);
     setIsValid(true);
+    // login 成功后是通过 onChange 触发 setIsSuperAdmin 的，但也可以在这里显式设置一下
+    setIsSuperAdmin(checkIsSuperAdmin(authData.record));
   };
 
   const logout = () => {
     pb.authStore.clear();
     setUser(null);
     setIsValid(false);
+    setIsSuperAdmin(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, isValid, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isSuperAdmin, isValid, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

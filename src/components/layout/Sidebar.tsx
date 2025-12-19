@@ -11,6 +11,7 @@ import {
   ArrowDown01Icon,
 } from '@hugeicons/core-free-icons';
 import { Logo } from '@/components/logo';
+import { useAuth } from '@/components/auth-provider';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,9 +25,11 @@ interface MenuItem {
   title: string;
   path?: string;
   icon: any; // 使用 any 以兼容 Hugeicons 图标类型
+  adminOnly?: boolean;
   children?: {
     title: string;
     path: string;
+    adminOnly?: boolean;
   }[];
 }
 
@@ -40,6 +43,7 @@ const menuItems: MenuItem[] = [
     title: '用户管理',
     path: '/users',
     icon: UserIcon,
+    adminOnly: true,
   },
   {
     title: '数据中心',
@@ -72,6 +76,21 @@ interface SidebarProps {
 
 export function Sidebar({ isCollapsed, className, onItemClick }: SidebarProps) {
   const location = useLocation();
+  const { isSuperAdmin } = useAuth();
+
+  // 过滤菜单项
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.adminOnly && !isSuperAdmin) return false;
+    return true;
+  }).map(item => {
+    if (item.children) {
+      return {
+        ...item,
+        children: item.children.filter(child => !child.adminOnly || isSuperAdmin)
+      };
+    }
+    return item;
+  });
 
   return (
     <aside className={cn(
@@ -89,7 +108,7 @@ export function Sidebar({ isCollapsed, className, onItemClick }: SidebarProps) {
 
       {/* Navigation */}
       <nav className="space-y-1 overflow-y-auto p-4" style={{ height: 'calc(100vh - 4rem)' }}>
-        {menuItems.map((item, index) => (
+        {filteredMenuItems.map((item, index) => (
           <NavItem 
             key={index} 
             item={item} 

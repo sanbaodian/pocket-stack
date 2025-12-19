@@ -29,7 +29,7 @@ interface HeaderProps {
 }
 
 export function Header({ onMenuClick, isCollapsed, isMobileOpen, onToggleSidebar }: HeaderProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, isSuperAdmin } = useAuth();
 
   return (
     <header className={cn(
@@ -90,10 +90,10 @@ export function Header({ onMenuClick, isCollapsed, isMobileOpen, onToggleSidebar
               <button className="ml-2 flex items-center gap-3 outline-none group">
                 <div className="hidden text-right md:block">
                   <p className="text-sm font-medium text-neutral-900 dark:text-neutral-50 group-hover:text-blue-600 transition-colors">
-                    {user?.name || '超级管理员'}
+                    {user?.name || (isSuperAdmin ? '超级管理员' : '普通用户')}
                   </p>
                   <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                    {user?.email}
+                    {user?.email} {isSuperAdmin && <span className="text-[10px] bg-blue-100 text-blue-600 px-1 rounded dark:bg-blue-900/40 dark:text-blue-400 ml-1">Admin</span>}
                   </p>
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white group-hover:bg-blue-700 transition-colors">

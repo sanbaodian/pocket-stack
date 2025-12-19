@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Dashboard } from '@/pages/dashboard';
-import { Users } from '@/pages/users';
+import { Users } from '@/pages/Users';
 import { Analytics } from '@/pages/analytics';
 import { Orders } from '@/pages/orders';
 import { Documents } from '@/pages/documents';
@@ -9,7 +9,7 @@ import { Settings } from '@/pages/settings';
 import { LoginPage } from '@/pages/login';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/components/auth-provider';
-import { ProtectedRoute } from '@/components/protected-route';
+import { ProtectedRoute, AdminOnlyRoute } from '@/components/protected-route';
 
 export function App() {
   return (
@@ -21,7 +21,11 @@ export function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Dashboard />} />
-                <Route path="users" element={<Users />} />
+                <Route path="users" element={
+                  <AdminOnlyRoute>
+                    <Users />
+                  </AdminOnlyRoute>
+                } />
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="documents" element={<Documents />} />
