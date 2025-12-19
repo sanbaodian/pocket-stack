@@ -1,6 +1,6 @@
 # Pocket Stack ：AI友好的全栈开发解决方案
 
-这是一个基于 **React 19 + TypeScript + Vite + shadcn/ui + PocketBase** 构建的现代化、全栈后台管理系统脚手架。
+基于 **React 19 + TypeScript + Vite + shadcn/ui + PocketBase** 构建的现代化、全栈后台管理系统脚手架。
 
 本项采用 AI 友好的技术栈，并结合 Shadcn & PocketBase MCP，提供完整、流畅的全栈 Vibe Coding 开发体验。
 
