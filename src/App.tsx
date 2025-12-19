@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MainLayout } from '@/components/layout';
 import { Dashboard } from '@/pages/dashboard';
-import { Users } from '@/pages/Users';
+import { Users } from '@/pages/users';
 import { Analytics } from '@/pages/analytics';
 import { Orders } from '@/pages/orders';
 import { Documents } from '@/pages/documents';
