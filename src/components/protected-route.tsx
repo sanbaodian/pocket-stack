@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from './auth-provider';
 
 export function ProtectedRoute() {
-  const { isValid, isLoading } = useAuth();
+  const { isValid, isLoading, isSuperAdmin } = useAuth();
 
   if (isLoading) {
     return (
@@ -14,6 +14,12 @@ export function ProtectedRoute() {
 
   if (!isValid) {
     return <Navigate to="/login" replace />;
+  }
+
+  // 只有在访问根路径时才跳转
+  const currentPath = window.location.pathname;
+  if (isSuperAdmin && currentPath === '/') {
+    return <Navigate to="/admin-dashboard" replace />;
   }
 
   return <Outlet />;
@@ -35,3 +41,5 @@ export function AdminOnlyRoute({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+
+

@@ -49,8 +49,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // 根据 model 所在的 collection 进行刷新
         const model = pb.authStore.model;
         const collectionName = model?.collectionName || (model?.username && !model?.email ? '_superusers' : 'users');
-        // 使用 { signal: undefined } 禁用自动取消
-        await pb.collection(collectionName).authRefresh({ signal: undefined });
+        // 禁用自动取消，避免在组件卸载时请求被取消
+        await pb.collection(collectionName).authRefresh({ $autoCancel: false });
       } catch (err: any) {
         console.error('Auth refresh failed:', err);
         // 只有在明确的 401/403 认证错误时才清空，防止网络抖动导致登出
@@ -59,6 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null);
           setIsValid(false);
           setIsSuperAdmin(false);
+        } else if (err?.isAbort) {
+          // 忽略自动取消的错误
+          console.warn('Auth refresh was autocancelled, this is expected during navigation');
         }
       } finally {
         setIsLoading(false);
@@ -99,4 +102,4 @@ export const useAuth = () => {
   }
   return context;
 };
-
+

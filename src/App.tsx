@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MainLayout } from '@/components/layout';
-import { Dashboard } from '@/pages/Dashboard';
+import { Dashboard } from '@/pages/dashboard';
 import { AdminDashboard } from '@/pages/AdminDashboard';
 import { Users } from '@/pages/users';
 import { Analytics } from '@/pages/analytics';
@@ -24,11 +24,7 @@ export function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Dashboard />} />
-                <Route path="admin-dashboard" element={
-                  <AdminOnlyRoute>
-                    <AdminDashboard />
-                  </AdminOnlyRoute>
-                } />
+                <Route path="admin-dashboard" element={<AdminOnlyRoute><AdminDashboard /></AdminOnlyRoute>} />
                 <Route path="users" element={
                   <AdminOnlyRoute>
                     <Users />
