@@ -791,7 +791,7 @@ export function Tasks() {
                                 </div>
                                 <DropdownMenu>
                                   <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button variant="ghost" size="icon" className="h-7 w-7 text-neutral-400 hover:text-neutral-600 transition-colors">
                                       <HugeiconsIcon icon={MoreHorizontalIcon} className="h-4 w-4" />
                                     </Button>
                                   </DropdownMenuTrigger>
