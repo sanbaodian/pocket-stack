@@ -3,7 +3,7 @@ export default {
   base: '/pocket-stack/',
   title: 'Pocket Stack',
   description: 'AI友好的全栈开发解决方案',
-  head: [['link', { rel: 'icon', href: '/assets/pocket-stack.svg', }]],
+  head: [['link', { rel: 'icon', href: '/pocket-stack.svg', }]],
   themeConfig: {
     // 主题级选项
     logo: '/pocket-stack.svg',
