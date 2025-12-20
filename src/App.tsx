@@ -9,6 +9,7 @@ import { Documents } from '@/pages/documents';
 import { Settings } from '@/pages/settings';
 import { Profile } from '@/pages/profile';
 import { Tasks } from '@/pages/tasks';
+import { CalendarPage } from '@/pages/calendar';
 import { LoginPage } from '@/pages/login';
 import { RegisterPage } from '@/pages/register';
 import { ThemeProvider } from '@/components/theme-provider';
@@ -35,6 +36,7 @@ export function App() {
                 <Route path="analytics" element={<Analytics />} />
                 <Route path="orders" element={<Orders />} />
                 <Route path="tasks" element={<Tasks />} />
+                <Route path="calendar" element={<CalendarPage />} />
                 <Route path="documents" element={<Documents />} />
                 <Route path="settings" element={<Settings />} />
                 <Route path="profile" element={<Profile />} />

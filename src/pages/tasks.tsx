@@ -4,8 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  Task01Icon, 
+import {
+  Task01Icon,
   Add01Icon,
   RefreshIcon,
   Search01Icon,
@@ -28,16 +28,11 @@ import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
 } from '@hugeicons/core-free-icons';
+import { TaskForm, type Task } from '@/components/tasks/TaskForm';
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd';
 import { pb } from '@/lib/pocketbase';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/components/auth-provider';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   Select,
   SelectContent,
@@ -61,20 +56,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Textarea } from '@/components/ui/textarea';
-
-interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: 'todo' | 'in_progress' | 'completed';
-  priority: 'low' | 'medium' | 'high';
-  user: string;
-  archived: boolean;
-  sort_order: number;
-  created?: string;
-  updated?: string;
-}
 
 const statusMap = {
   todo: { label: '待办', color: 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400', icon: Bookmark01Icon },
@@ -115,12 +96,6 @@ export function Tasks() {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    status: 'todo' as Task['status'],
-    priority: 'medium' as Task['priority'],
-  });
 
   const fetchTasks = async () => {
     if (!user) return;
@@ -129,36 +104,36 @@ export function Tasks() {
       `user = "${user.id}"`,
       `archived = ${showArchived}`
     ];
-    
+
     try {
       if (searchTerm) {
         filters.push(`(title ~ "${searchTerm}" || description ~ "${searchTerm}")`);
       }
-      
+
       if (filterStatus !== 'all') {
         filters.push(`status = "${filterStatus}"`);
       }
-      
+
       if (filterPriority !== 'all') {
         filters.push(`priority = "${filterPriority}"`);
       }
-      
+
       if (filterTime !== 'all') {
         const startDate = new Date();
         startDate.setHours(0, 0, 0, 0); // Start from midnight
-        
+
         if (filterTime === 'week') {
           startDate.setDate(startDate.getDate() - 7);
         } else if (filterTime === 'month') {
           startDate.setMonth(startDate.getMonth() - 1);
         }
-        
+
         const formattedDate = startDate.toISOString().replace('T', ' ').split('.')[0];
         filters.push(`created >= "${formattedDate}"`);
       }
-      
+
       const filterString = filters.join(' && ');
-        
+
       if (viewMode === 'kanban') {
         const result = await pb.collection('tasks').getFullList<Task>({
           sort: sortBy,
@@ -210,12 +185,12 @@ export function Tasks() {
   const getSortIcon = (field: string) => {
     const isSorted = sortBy === field || sortBy === `-${field}`;
     const isDesc = sortBy === `-${field}`;
-    
+
     if (!isSorted) {
       return <HugeiconsIcon icon={ArrowUpDownIcon} className="ml-1.5 h-3.5 w-3.5 opacity-20 group-hover:opacity-50 transition-opacity" />;
     }
-    
-    return isDesc 
+
+    return isDesc
       ? <HugeiconsIcon icon={ArrowDown01Icon} className="ml-1.5 h-3.5 w-3.5 text-blue-500" />
       : <HugeiconsIcon icon={ArrowUp01Icon} className="ml-1.5 h-3.5 w-3.5 text-blue-500" />;
   };
@@ -225,7 +200,7 @@ export function Tasks() {
       fetchTasks();
     }, 300);
     return () => clearTimeout(timer);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, sortBy, searchTerm, filterStatus, filterPriority, filterTime, showArchived, viewMode, page]);
 
   useEffect(() => {
@@ -233,59 +208,8 @@ export function Tasks() {
   }, [searchTerm, filterStatus, filterPriority, filterTime, showArchived, viewMode]);
 
   const handleOpenDialog = (task?: Task) => {
-    if (task) {
-      setEditingTask(task);
-      setFormData({
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        priority: task.priority,
-      });
-    } else {
-      setEditingTask(null);
-      setFormData({
-        title: '',
-        description: '',
-        status: 'todo',
-        priority: 'medium',
-      });
-    }
+    setEditingTask(task || null);
     setIsDialogOpen(true);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!user) return;
-
-    try {
-      const data = {
-        title: formData.title,
-        description: formData.description,
-        status: formData.status,
-        priority: formData.priority,
-        user: user.id,
-      };
-
-      if (editingTask) {
-        await pb.collection('tasks').update(editingTask.id, data);
-      } else {
-        // Find the maximum sort_order for the current status to append at the end
-        const statusTasks = tasks.filter(t => t.status === formData.status);
-        const maxSortOrder = statusTasks.length > 0 
-          ? Math.max(...statusTasks.map(t => t.sort_order || 0)) 
-          : 0;
-        
-        await pb.collection('tasks').create({
-          ...data,
-          sort_order: maxSortOrder + 1000, // Increment by 1000 to allow space for reordering
-        });
-      }
-      setIsDialogOpen(false);
-      fetchTasks();
-    } catch (error) {
-      console.error('Failed to save task:', error);
-      alert('保存失败，请检查网络或后端配置。\n' + (error instanceof Error ? error.message : '未知错误'));
-    }
   };
 
   const handleDelete = async (id: string) => {
@@ -337,7 +261,7 @@ export function Tasks() {
 
     // Calculate new sort_order
     let newSortOrder: number;
-    
+
     if (columnTasks.length === 0) {
       // Column is empty
       newSortOrder = 1000;
@@ -366,14 +290,14 @@ export function Tasks() {
     }
 
     // Optimistically update local state
-    const updatedTasks = tasks.map(t => 
+    const updatedTasks = tasks.map(t =>
       t.id === draggableId ? { ...t, status: destinationStatus, sort_order: newSortOrder } : t
     ).sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-    
+
     setTasks(updatedTasks);
 
     try {
-      await pb.collection('tasks').update(draggableId, { 
+      await pb.collection('tasks').update(draggableId, {
         status: destinationStatus,
         sort_order: newSortOrder
       });
@@ -417,9 +341,9 @@ export function Tasks() {
             className="h-10 w-10 rounded-xl transition-all bg-white dark:bg-neutral-950 text-neutral-600 border-neutral-200 dark:border-neutral-800 active:scale-95"
             title={viewMode === 'table' ? "切换至看板模式" : "切换至表格视图"}
           >
-            <HugeiconsIcon 
-              icon={viewMode === 'table' ? LayoutGridIcon : Table01Icon} 
-              className="h-4 w-4" 
+            <HugeiconsIcon
+              icon={viewMode === 'table' ? LayoutGridIcon : Table01Icon}
+              className="h-4 w-4"
             />
           </Button>
           <Button variant="outline" size="icon" onClick={() => fetchTasks()} disabled={loading} className="rounded-xl h-10 w-10 bg-white dark:bg-neutral-950 transition-all active:scale-95">
@@ -483,9 +407,9 @@ export function Tasks() {
           </Select>
 
           {(filterStatus !== 'all' || filterPriority !== 'all' || filterTime !== 'all') && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => {
                 setFilterStatus('all');
                 setFilterPriority('all');
@@ -505,8 +429,8 @@ export function Tasks() {
             onClick={() => setShowArchived(!showArchived)}
             className={cn(
               "h-9 px-3 gap-2 rounded-xl text-xs font-bold transition-all border border-transparent shrink-0",
-              showArchived 
-                ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/50" 
+              showArchived
+                ? "bg-amber-50 text-amber-600 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-900/50"
                 : "text-neutral-500 hover:bg-neutral-100 dark:text-neutral-400 bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-800"
             )}
           >
@@ -528,7 +452,7 @@ export function Tasks() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-neutral-50/50 dark:bg-neutral-950/50 border-b border-neutral-100 dark:border-neutral-800 hover:bg-transparent">
-                  <TableHead 
+                  <TableHead
                     className="w-[40%] h-14 px-6 font-bold text-neutral-900 dark:text-neutral-100 cursor-pointer group select-none transition-colors hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50"
                     onClick={() => handleSort('title')}
                   >
@@ -537,7 +461,7 @@ export function Tasks() {
                       {getSortIcon('title')}
                     </div>
                   </TableHead>
-                  <TableHead 
+                  <TableHead
                     className="w-[15%] h-14 font-bold text-neutral-900 dark:text-neutral-100 text-center cursor-pointer group select-none transition-colors hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50"
                     onClick={() => handleSort('status')}
                   >
@@ -546,7 +470,7 @@ export function Tasks() {
                       {getSortIcon('status')}
                     </div>
                   </TableHead>
-                  <TableHead 
+                  <TableHead
                     className="w-[15%] h-14 font-bold text-neutral-900 dark:text-neutral-100 text-center cursor-pointer group select-none transition-colors hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50"
                     onClick={() => handleSort('priority')}
                   >
@@ -555,7 +479,7 @@ export function Tasks() {
                       {getSortIcon('priority')}
                     </div>
                   </TableHead>
-                  <TableHead 
+                  <TableHead
                     className="w-[15%] h-14 font-bold text-neutral-900 dark:text-neutral-100 text-center cursor-pointer group select-none transition-colors hover:bg-neutral-100/50 dark:hover:bg-neutral-800/50"
                     onClick={() => handleSort('updated')}
                   >
@@ -616,7 +540,7 @@ export function Tasks() {
                           <div className={cn(
                             "w-2 h-2 rounded-full",
                             task.priority === 'high' ? "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pulse" :
-                            task.priority === 'medium' ? "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]" : "bg-neutral-300"
+                              task.priority === 'medium' ? "bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]" : "bg-neutral-300"
                           )} />
                           <span className={cn("text-xs font-bold", priorityMap[task.priority].color)}>
                             {priorityMap[task.priority].label}
@@ -652,14 +576,14 @@ export function Tasks() {
                               <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-4 w-4 text-green-500" />
                               <span>完成任务!</span>
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuItem onClick={() => toggleArchive(task)} className="rounded-xl gap-3 cursor-pointer py-2.5 focus:bg-amber-50 dark:focus:bg-amber-900/20 transition-colors text-sm font-medium">
                               <HugeiconsIcon icon={ArchiveIcon} className="h-4 w-4 text-amber-500" />
                               <span>{task.archived ? '取消归档' : '移入归档箱'}</span>
                             </DropdownMenuItem>
-                            
+
                             <DropdownMenuSeparator className="my-2 bg-neutral-100 dark:bg-neutral-800" />
-                            
+
                             <DropdownMenuLabel className="text-[10px] font-black text-neutral-400 uppercase tracking-[0.1em] px-3 py-2">
                               常规管理
                             </DropdownMenuLabel>
@@ -696,7 +620,7 @@ export function Tasks() {
                 >
                   <HugeiconsIcon icon={ArrowLeft01Icon} className="h-3.5 w-3.5" />
                 </Button>
-                
+
                 <div className="flex items-center gap-1">
                   {Array.from({ length: totalPages }).map((_, i) => i + 1).map((p) => (
                     <Button
@@ -705,8 +629,8 @@ export function Tasks() {
                       size="icon"
                       className={cn(
                         "h-8 w-8 rounded-lg text-xs font-bold transition-all",
-                        page === p 
-                          ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20" 
+                        page === p
+                          ? "bg-blue-600 hover:bg-blue-700 text-white shadow-md shadow-blue-500/20"
                           : "text-neutral-500 hover:bg-neutral-100 dark:hover:bg-neutral-800"
                       )}
                       onClick={() => setPage(p)}
@@ -736,9 +660,9 @@ export function Tasks() {
               <div key={status} className="flex flex-col bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl p-3">
                 <div className="flex items-center justify-between px-3 mb-3 h-10">
                   <div className="flex items-center gap-2.5">
-                    <div className={cn("w-2 h-2 rounded-full", 
-                      status === 'todo' ? "bg-neutral-400" : 
-                      status === 'in_progress' ? "bg-blue-500" : "bg-green-500"
+                    <div className={cn("w-2 h-2 rounded-full",
+                      status === 'todo' ? "bg-neutral-400" :
+                        status === 'in_progress' ? "bg-blue-500" : "bg-green-500"
                     )} />
                     <span className="text-sm font-black uppercase tracking-wider text-neutral-900 dark:text-neutral-100">
                       {statusMap[status].label}
@@ -756,7 +680,7 @@ export function Tasks() {
 
                 <Droppable droppableId={status}>
                   {(provided, snapshot) => (
-                    <div 
+                    <div
                       {...provided.droppableProps}
                       ref={provided.innerRef}
                       className={cn(
@@ -767,7 +691,7 @@ export function Tasks() {
                       {tasks.filter(t => t.status === status).map((task, index) => (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
                           {(provided, snapshot) => (
-                            <div 
+                            <div
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               className={cn(
@@ -783,7 +707,7 @@ export function Tasks() {
                                   <div className={cn(
                                     "w-2 h-2 rounded-full shrink-0",
                                     task.priority === 'high' ? "bg-red-500" :
-                                    task.priority === 'medium' ? "bg-blue-500" : "bg-neutral-300"
+                                      task.priority === 'medium' ? "bg-blue-500" : "bg-neutral-300"
                                   )} />
                                   <h3 className="text-sm text-neutral-900 dark:text-neutral-100 leading-snug">
                                     {task.title}
@@ -832,83 +756,12 @@ export function Tasks() {
         </DragDropContext>
       )}
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[520px] rounded-[2rem] p-0 border-none shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-300">
-          <div className="bg-gradient-to-br from-blue-600 to-blue-800 px-8 py-10 text-white relative">
-            <div className="relative z-10">
-              <DialogTitle className="text-3xl font-black tracking-tight">{editingTask ? '编辑任务详情' : '开启新挑战'}</DialogTitle>
-              <DialogDescription className="text-blue-100 mt-2 text-base font-medium">
-                {editingTask ? '细化任务目标，保持工作节奏。' : '定义您的下一个重要里程碑。'}
-              </DialogDescription>
-            </div>
-            <div className="absolute right-[-20px] top-[-20px] w-48 h-48 bg-white/10 rounded-full blur-3xl" />
-          </div>
-          
-          <form onSubmit={handleSubmit} className="p-8 space-y-6 bg-white dark:bg-neutral-950">
-            <div className="space-y-2.5">
-              <Label htmlFor="title" className="text-sm font-bold text-neutral-700 dark:text-neutral-300 ml-1">任务名称</Label>
-              <Input
-                id="title"
-                placeholder="例如: 🚀 发布 1.0 版本核心代码"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                required
-                className="h-12 border-neutral-200 dark:border-neutral-800 rounded-2xl bg-neutral-50/50 dark:bg-neutral-900/50 px-4 focus-visible:ring-blue-500/20 font-medium transition-all"
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-5">
-              <div className="space-y-2.5">
-                <Label className="text-sm font-bold text-neutral-700 dark:text-neutral-300 ml-1">当前状况</Label>
-                <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val as Task['status'] })}>
-                  <SelectTrigger className="h-12 border-neutral-200 dark:border-neutral-800 rounded-2xl bg-neutral-50/50 dark:bg-neutral-900/50 px-4 focus-visible:ring-blue-500/20 font-medium transition-all">
-                    <SelectValue placeholder="设置进度" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-neutral-200 dark:border-neutral-800 p-1.5 shadow-xl">
-                    <SelectItem value="todo" className="rounded-xl py-2.5">待办事项</SelectItem>
-                    <SelectItem value="in_progress" className="rounded-xl py-2.5 text-blue-600">进行中</SelectItem>
-                    <SelectItem value="completed" className="rounded-xl py-2.5 text-green-600">已圆满完成</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2.5">
-                <Label className="text-sm font-bold text-neutral-700 dark:text-neutral-300 ml-1">优先级</Label>
-                <Select value={formData.priority} onValueChange={(val) => setFormData({ ...formData, priority: val as Task['priority'] })}>
-                  <SelectTrigger className="h-12 border-neutral-200 dark:border-neutral-800 rounded-2xl bg-neutral-50/50 dark:bg-neutral-900/50 px-4 focus-visible:ring-blue-500/20 font-medium transition-all">
-                    <SelectValue placeholder="重要程度" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-neutral-200 dark:border-neutral-800 p-1.5 shadow-xl">
-                    <SelectItem value="low" className="rounded-xl py-2.5">低 (不紧急)</SelectItem>
-                    <SelectItem value="medium" className="rounded-xl py-2.5 text-blue-500 font-bold">中 (正常推进)</SelectItem>
-                    <SelectItem value="high" className="rounded-xl py-2.5 text-red-600 font-black">高 (立刻处理!)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-2.5">
-              <Label htmlFor="description" className="text-sm font-bold text-neutral-700 dark:text-neutral-300 ml-1">任务备注</Label>
-              <Textarea
-                id="description"
-                placeholder="在此记录任务的关键细节、依赖项或备忘内容..."
-                rows={4}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="resize-none border-neutral-200 dark:border-neutral-800 rounded-2xl bg-neutral-50/50 dark:bg-neutral-900/50 p-4 focus-visible:ring-blue-500/20 font-medium transition-all"
-              />
-            </div>
-
-            <div className="pt-4 flex gap-3">
-              <Button type="button" variant="ghost" onClick={() => setIsDialogOpen(false)} className="rounded-2xl flex-1 h-12 font-bold text-neutral-500 hover:bg-neutral-100 active:scale-95 transition-all">
-                放弃更改
-              </Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl flex-[2] h-12 font-bold shadow-xl shadow-blue-500/25 active:scale-95 transition-all">
-                {editingTask ? '保存并同步' : '立即创建任务'}
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <TaskForm
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSuccess={() => fetchTasks()}
+        task={editingTask}
+      />
     </div>
   );
 }

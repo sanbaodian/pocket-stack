@@ -9,6 +9,7 @@ import {
   ChartLineData01Icon,
   ShoppingCart01Icon,
   Task01Icon,
+  Calendar01Icon,
   ArrowDown01Icon,
 } from '@hugeicons/core-free-icons';
 import { Logo } from '@/components/logo';
@@ -59,6 +60,12 @@ const menuItems: MenuItem[] = [
     title: '任务管理',
     path: '/tasks',
     icon: Task01Icon,
+    userOnly: true,
+  },
+  {
+    title: '任务日历',
+    path: '/calendar',
+    icon: Calendar01Icon,
     userOnly: true,
   },
   // {
