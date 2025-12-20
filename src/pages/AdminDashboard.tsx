@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Bookmark01Icon,
-  HourglassIcon,
-  CheckmarkCircle01Icon,
-  UserIcon,
-} from '@hugeicons/core-free-icons';
-import { pb } from '@/lib/pocketbase';
-import { useAuth } from '@/components/auth-provider';
 import { Badge } from '@/components/ui/badge';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Bookmark01Icon, 
+  HourglassIcon, 
+  CheckmarkCircle01Icon, 
+  UserIcon 
+} from '@hugeicons/core-free-icons';
+import { useAuth } from '@/components/auth-provider';
+import { pb } from '@/lib/pocketbase';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Area, AreaChart } from 'recharts';
 
 interface Task {
@@ -49,7 +49,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     return (
       <div className="px-4 py-3 bg-white dark:bg-neutral-800 rounded-lg shadow-lg border border-neutral-200 dark:border-neutral-700">
         <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 mb-1">{label}</p>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">{payload[0].value} 个任务</p>
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">{payload[0].value} 个用户</p>
       </div>
     );
   }
@@ -217,8 +217,8 @@ export function AdminDashboard() {
       </div>
 
       {/* Charts Section */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card className="hover:shadow-md transition-shadow">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2">
+        <Card className="hover:shadow-lg transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-xl font-bold">全局任务创建趋势</CardTitle>
           </CardHeader>
@@ -234,26 +234,38 @@ export function AdminDashboard() {
                 <p className="text-neutral-500">暂无数据</p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={trendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" stroke="#9ca3af" tick={{ fill: '#6b7280' }} />
-                  <YAxis stroke="#9ca3af" tick={{ fill: '#6b7280' }} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="count" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCount)" animationDuration={1000} />
-                </AreaChart>
-              </ResponsiveContainer>
+              <div className="relative">
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={trendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" opacity={0.5} />
+                    <XAxis dataKey="date" stroke="#9ca3af" tick={{ fill: '#6b7280' }} tickLine={false} />
+                    <YAxis stroke="#9ca3af" tick={{ fill: '#6b7280' }} tickLine={false} axisLine={false} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area 
+                      type="monotone" 
+                      dataKey="count" 
+                      stroke="#3b82f6" 
+                      strokeWidth={2} 
+                      fillOpacity={1} 
+                      fill="url(#colorCount)" 
+                      animationDuration={1500} 
+                      animationBegin={200} 
+                      activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2, fill: '#ffffff' }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-lg transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-xl font-bold">全局任务状态分布</CardTitle>
           </CardHeader>
@@ -269,25 +281,38 @@ export function AdminDashboard() {
                 <p className="text-neutral-500">暂无数据</p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={statusData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    paddingAngle={5}
-                    dataKey="value"
-                    animationDuration={1000}
-                  >
-                    {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip content={<PieTooltip />} />
-                </PieChart>
-              </ResponsiveContainer>
+              <div className="relative">
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <defs>
+                      {statusData.map((entry, index) => (
+                        <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor={entry.color} stopOpacity={0.8} />
+                          <stop offset="100%" stopColor={entry.color} stopOpacity={0.3} />
+                        </linearGradient>
+                      ))}
+                    </defs>
+                    <Pie
+                      data={statusData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={100}
+                      paddingAngle={5}
+                      dataKey="value"
+                      animationDuration={1500}
+                      animationBegin={200}
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                      labelLine={false}
+                    >
+                      {statusData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={`url(#gradient-${index})`} stroke="#ffffff" strokeWidth={2} />
+                      ))}
+                    </Pie>
+                    <Tooltip content={<PieTooltip />} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -295,7 +320,7 @@ export function AdminDashboard() {
 
       {/* User Chart Section */}
       <div className="grid gap-6">
-        <Card className="hover:shadow-md transition-shadow">
+        <Card className="hover:shadow-lg transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-xl font-bold">用户注册趋势</CardTitle>
           </CardHeader>
@@ -311,21 +336,33 @@ export function AdminDashboard() {
                 <p className="text-neutral-500">暂无数据</p>
               </div>
             ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={userTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" stroke="#9ca3af" tick={{ fill: '#6b7280' }} />
-                  <YAxis stroke="#9ca3af" tick={{ fill: '#6b7280' }} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="count" stroke="#8b5cf6" fillOpacity={1} fill="url(#colorUsers)" animationDuration={1000} />
-                </AreaChart>
-              </ResponsiveContainer>
+              <div className="relative">
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={userTrendData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.1} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" opacity={0.5} />
+                    <XAxis dataKey="date" stroke="#9ca3af" tick={{ fill: '#6b7280' }} tickLine={false} />
+                    <YAxis stroke="#9ca3af" tick={{ fill: '#6b7280' }} tickLine={false} axisLine={false} />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area 
+                      type="monotone" 
+                      dataKey="count" 
+                      stroke="#8b5cf6" 
+                      strokeWidth={2} 
+                      fillOpacity={1} 
+                      fill="url(#colorUsers)" 
+                      animationDuration={1500} 
+                      animationBegin={200} 
+                      activeDot={{ r: 6, stroke: '#8b5cf6', strokeWidth: 2, fill: '#ffffff' }}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -353,15 +390,23 @@ export function AdminDashboard() {
                 {users.slice(0, 10).map((user) => (
                   <div key={user.id} className="flex items-center justify-between p-4 border border-neutral-200 dark:border-neutral-800 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors">
                     <div className="flex items-center space-x-3">
-                      <div className="rounded-full bg-indigo-100 dark:bg-indigo-900/30 p-3">
-                        <HugeiconsIcon icon={UserIcon} className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                        {user.avatar ? (
+                          <img 
+                            src={`${pb.baseUrl}/api/files/users/${user.id}/${user.avatar}`} 
+                            alt={user.name || user.email} 
+                            className="rounded-full h-12 w-12 object-cover"
+                          />
+                        ) : (
+                          <div className="rounded-full bg-indigo-100 dark:bg-indigo-900/30 p-3">
+                            <HugeiconsIcon icon={UserIcon} className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name || user.email}</p>
+                          <p className="text-sm text-neutral-500 dark:text-neutral-500">{user.email}</p>
+                          <p className="text-xs text-neutral-400 dark:text-neutral-600">注册于: {new Date(user.created).toLocaleDateString()}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="font-medium text-neutral-900 dark:text-neutral-100">{user.name || user.email}</p>
-                        <p className="text-sm text-neutral-500 dark:text-neutral-500">{user.email}</p>
-                        <p className="text-xs text-neutral-400 dark:text-neutral-600">注册于: {new Date(user.created).toLocaleDateString()}</p>
-                      </div>
-                    </div>
                     <Badge variant="outline" className="bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400">
                       活跃用户
                     </Badge>

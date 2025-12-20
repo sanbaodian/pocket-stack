@@ -198,11 +198,21 @@ export function Dashboard() {
                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="date" stroke="#9ca3af" tick={{ fill: '#6b7280' }} />
-                  <YAxis stroke="#9ca3af" tick={{ fill: '#6b7280' }} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" opacity={0.5} />
+                  <XAxis dataKey="date" stroke="#9ca3af" tick={{ fill: '#6b7280' }} tickLine={false} />
+                  <YAxis stroke="#9ca3af" tick={{ fill: '#6b7280' }} tickLine={false} axisLine={false} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="count" stroke="#3b82f6" fillOpacity={1} fill="url(#colorCount)" animationDuration={1000} />
+                  <Area 
+                    type="monotone" 
+                    dataKey="count" 
+                    stroke="#3b82f6" 
+                    strokeWidth={2} 
+                    fillOpacity={1} 
+                    fill="url(#colorCount)" 
+                    animationDuration={1500} 
+                    animationBegin={200} 
+                    activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2, fill: '#ffffff' }}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             )}
@@ -227,6 +237,14 @@ export function Dashboard() {
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
+                  <defs>
+                    {statusData.map((entry, index) => (
+                      <linearGradient key={`gradient-${index}`} id={`gradient-${index}`} x1="0" y1="0" x2="1" y2="0">
+                        <stop offset="0%" stopColor={entry.color} stopOpacity={0.8} />
+                        <stop offset="100%" stopColor={entry.color} stopOpacity={0.3} />
+                      </linearGradient>
+                    ))}
+                  </defs>
                   <Pie
                     data={statusData}
                     cx="50%"
@@ -235,10 +253,13 @@ export function Dashboard() {
                     outerRadius={100}
                     paddingAngle={5}
                     dataKey="value"
-                    animationDuration={1000}
+                    animationDuration={1500}
+                    animationBegin={200}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                    labelLine={false}
                   >
                     {statusData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
+                      <Cell key={`cell-${index}`} fill={`url(#gradient-${index})`} stroke="#ffffff" strokeWidth={2} />
                     ))}
                   </Pie>
                   <Tooltip content={<PieTooltip />} />
