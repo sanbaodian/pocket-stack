@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '@/components/auth-provider';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -47,69 +47,77 @@ export function LoginPage() {
           <CardHeader className="space-y-1 text-center">
             <CardTitle className="text-2xl font-bold">后台管理系统</CardTitle>
             <CardDescription>
-              {isSuperAdmin ? '以超级管理员身份登录' : '以普通管理员身份登录'}
+              {isSuperAdmin ? '以超级管理员身份登录' : '以普通用户身份登录'}
             </CardDescription>
           </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
-                {error}
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <div className="rounded-md bg-red-50 p-3 text-sm text-red-600 dark:bg-red-950/30 dark:text-red-400">
+                  {error}
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label htmlFor="email">账号 (邮箱)</Label>
+                <div className="relative">
+                  <HugeiconsIcon icon={Mail01Icon} className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="admin@example.com"
+                    className="pl-9"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">账号 (邮箱)</Label>
-              <div className="relative">
-                <HugeiconsIcon icon={Mail01Icon} className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="admin@example.com"
-                  className="pl-9"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
+              <div className="space-y-2">
+                <Label htmlFor="password">密码</Label>
+                <div className="relative">
+                  <HugeiconsIcon icon={LockIcon} className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                  <Input
+                    id="password"
+                    type="password"
+                    className="pl-9"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">密码</Label>
-              <div className="relative">
-                <HugeiconsIcon icon={LockIcon} className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
-                <Input
-                  id="password"
-                  type="password"
-                  className="pl-9"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-2 py-2">
-              <Checkbox 
-                id="isSuperAdmin" 
-                checked={isSuperAdmin}
-                onCheckedChange={(checked) => setIsSuperAdmin(checked === true)}
-              />
-              <label
-                htmlFor="isSuperAdmin"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-neutral-600 dark:text-neutral-400"
-              >
-                超级管理员登录
-              </label>
-            </div>
 
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <HugeiconsIcon icon={Loading01Icon} className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              登录
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+              <div className="flex items-center space-x-2 py-2">
+                <Checkbox
+                  id="isSuperAdmin"
+                  checked={isSuperAdmin}
+                  onCheckedChange={(checked) => setIsSuperAdmin(checked === true)}
+                />
+                <label
+                  htmlFor="isSuperAdmin"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-neutral-600 dark:text-neutral-400"
+                >
+                  超级管理员登录
+                </label>
+              </div>
+
+              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <HugeiconsIcon icon={Loading01Icon} className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                登录
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">
+              没有账号?{' '}
+              <Link to="/register" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                立即注册
+              </Link>
+            </p>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

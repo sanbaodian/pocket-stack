@@ -10,6 +10,7 @@ import { Settings } from '@/pages/settings';
 import { Profile } from '@/pages/profile';
 import { Tasks } from '@/pages/tasks';
 import { LoginPage } from '@/pages/login';
+import { RegisterPage } from '@/pages/register';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/components/auth-provider';
 import { ProtectedRoute, AdminOnlyRoute } from '@/components/protected-route';
@@ -21,6 +22,7 @@ export function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Dashboard />} />

@@ -7,6 +7,7 @@ interface AuthContextType {
   isSuperAdmin: boolean;
   isValid: boolean;
   login: (email: string, password: string, isSuperAdmin?: boolean) => Promise<void>;
+  register: (email: string, password: string, passwordConfirm: string) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -71,6 +72,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, []);
 
+  const register = async (email: string, password: string, passwordConfirm: string) => {
+    // 创建用户
+    await pb.collection('users').create({
+      email,
+      password,
+      passwordConfirm,
+    });
+
+    // 注册成功后自动登录
+    await login(email, password, false);
+  };
+
   const login = async (email: string, password: string, isSuperAdminLogin: boolean = false) => {
     // 根据选择尝试不同类型的登录
     const collectionName = isSuperAdminLogin ? '_superusers' : 'users';
@@ -89,7 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isSuperAdmin, isValid, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, isSuperAdmin, isValid, login, register, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
