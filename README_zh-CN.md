@@ -46,16 +46,17 @@ Pocket Stack 的 98% 的特性是 Vibe Coding 开发的结果。经过在多个�
 ## 📁 目录结构
 
 ```text
-src/
-├── components/
-│   ├── layout/          # 布局组件 (Sidebar, Header, MainLayout)
-│   ├── ui/              # shadcn/ui 组件库
-│   ├── auth-provider.tsx # 权限上下文逻辑
-│   └── protected-route.tsx # 路由守卫组件
-├── pages/               # 业务页面 (login, dashboard, users 等)
-├── lib/                 # 工具类 (pocketbase SDK, tailwind utils)
-├── App.tsx              # 路由与 Provider 根配置
-└── main.tsx             # 应用入口
+├── pb_schemas/          # PocketBase 集合配置 (JSON)
+└── src/
+    ├── components/
+    │   ├── layout/          # 布局组件 (Sidebar, Header, MainLayout)
+    │   ├── ui/              # shadcn/ui 组件库
+    │   ├── auth-provider.tsx # 权限上下文逻辑
+    │   └── protected-route.tsx # 路由守卫组件
+    ├── pages/               # 业务页面 (login, dashboard, users 等)
+    ├── lib/                 # 工具类 (pocketbase SDK, tailwind utils)
+    ├── App.tsx              # 路由与 Provider 根配置
+    └── main.tsx             # 应用入口
 ```
 
 ## 🚀 快速开始
@@ -74,3 +75,7 @@ npm install
 # 启动开发服务器
 npm run dev
 ```
+
+### 3. 后端配置（可选）
+
+如果项目中包含 PocketBase Schemas 文件（位于 `pb_schemas/` ），可在 PocketBase 后台导入配置。

@@ -12,12 +12,12 @@ English | [简体中文](README_zh-CN.md)
 
 98% of Pocket Stack's features were developed using Vibe Coding. After testing on multiple development agents, although results vary, all can complete development.
 
-| IDE         | Model           | Score | Description                                                                 |
-| ----------- | --------------- | ----- | --------------------------------------------------------------------------- |
+| IDE         | Model           | Score | Description                                                                                |
+| ----------- | --------------- | ----- | ------------------------------------------------------------------------------------------ |
 | Trae China  | Doubao-Seed-1.8 | 90    | Can achieve vibe development. Half the features work on first try, half need debug prompts |
-| Trae Global | Ginimi-3-flash  | 95    | Can achieve vibe development. 20% of cases need debug prompts               |
-| Antigravity | Ginimi-3-flash  | 98    | Can achieve vibe development. Almost all work on first try                  |
-| Antigravity | Ginimi-3-Pro    | 98    | Can achieve vibe development. Almost perfect                                |
+| Trae Global | Ginimi-3-flash  | 95    | Can achieve vibe development. 20% of cases need debug prompts                              |
+| Antigravity | Ginimi-3-flash  | 98    | Can achieve vibe development. Almost all work on first try                                 |
+| Antigravity | Ginimi-3-Pro    | 98    | Can achieve vibe development. Almost perfect                                               |
 
 ## 🌟 Core Features
 
@@ -33,29 +33,30 @@ English | [简体中文](README_zh-CN.md)
 
 ## 🌐 Tech Stack
 
-| Domain        | Solution                     |
-| :------------ | :--------------------------- |
-| **Backend/Auth** | PocketBase                   |
+| Domain                 | Solution                     |
+| :--------------------- | :--------------------------- |
+| **Backend/Auth**       | PocketBase                   |
 | **Frontend Framework** | React 19 + TypeScript        |
-| **Build Tool** | Vite                         |
-| **UI Components** | shadcn/ui (@base-ui/react)   |
-| **Styling**   | Tailwind CSS v4 (Maia Style) |
-| **Routing**   | React Router v7              |
-| **Icons**     | HugeIcons React              |
+| **Build Tool**         | Vite                         |
+| **UI Components**      | shadcn/ui (@base-ui/react)   |
+| **Styling**            | Tailwind CSS v4 (Maia Style) |
+| **Routing**            | React Router v7              |
+| **Icons**              | HugeIcons React              |
 
 ## 📁 Directory Structure
 
 ```text
-src/
-├── components/
-│   ├── layout/          # Layout components (Sidebar, Header, MainLayout)
-│   ├── ui/              # shadcn/ui component library
-│   ├── auth-provider.tsx # Authentication context logic
-│   └── protected-route.tsx # Route guard component
-├── pages/               # Business pages (login, dashboard, users, etc.)
-├── lib/                 # Utilities (pocketbase SDK, tailwind utils)
-├── App.tsx              # Router and Provider root configuration
-└── main.tsx             # Application entry point
+├── pb_schemas/          # PocketBase collection configurations (JSON)
+└── src/
+    ├── components/
+    │   ├── layout/          # Layout components (Sidebar, Header, MainLayout)
+    │   ├── ui/              # shadcn/ui component library
+    │   ├── auth-provider.tsx # Authentication context logic
+    │   └── protected-route.tsx # Route guard component
+    ├── pages/               # Business pages (login, dashboard, users, etc.)
+    ├── lib/                 # Utilities (pocketbase SDK, tailwind utils)
+    ├── App.tsx              # Router and Provider root configuration
+    └── main.tsx             # Application entry point
 ```
 
 ## 🚀 Quick Start
@@ -74,3 +75,7 @@ npm install
 # Start development server
 npm run dev
 ```
+
+### 3. Backend Configuration (Optional)
+
+If the project includes PocketBase Schemas files (located in `pb_schemas/`), you can import the configuration in the PocketBase admin panel.
