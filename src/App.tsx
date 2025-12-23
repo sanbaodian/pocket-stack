@@ -10,6 +10,7 @@ import { Tasks } from '@/pages/task/Tasks';
 import { CalendarPage } from '@/pages/task/Calendar';
 import { LoginPage } from '@/pages/Login';
 import { RegisterPage } from '@/pages/Register';
+import { NotFound } from '@/pages/NotFound';
 import { ExampleDashboard } from '@/pages/examples/Dashboard';
 import { ExampleTable } from '@/pages/examples/Table';
 import { ExampleCard } from '@/pages/examples/Card';
@@ -47,6 +48,7 @@ export function App() {
                 <Route path="examples/form" element={<Form />} />
               </Route>
             </Route>
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>
