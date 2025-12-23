@@ -1,8 +1,9 @@
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from './auth-provider';
 
 export function ProtectedRoute() {
   const { isValid, isLoading, isSuperAdmin } = useAuth();
+  const location = useLocation();
 
   if (isLoading) {
     return (
@@ -13,13 +14,7 @@ export function ProtectedRoute() {
   }
 
   if (!isValid) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // 只有在访问根路径时才跳转
-  const currentPath = window.location.pathname;
-  if (isSuperAdmin && currentPath === '/') {
-    return <Navigate to="/admin-dashboard" replace />;
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <Outlet />;

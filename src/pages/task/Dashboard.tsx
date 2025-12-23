@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -68,7 +69,12 @@ const PieTooltip = ({ active, payload }: any) => {
 };
 
 export function Dashboard() {
-  const { user } = useAuth();
+  const { user, isSuperAdmin } = useAuth();
+
+  if (isSuperAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([

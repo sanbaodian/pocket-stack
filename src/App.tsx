@@ -2,19 +2,19 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MainLayout } from '@/components/layout';
 import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/components/auth-provider';
-import { Dashboard } from '@/pages/Dashboard';
-import { AdminDashboard } from '@/pages/AdminDashboard';
-import { Users } from '@/pages/users';
-import { Profile } from '@/pages/profile';
-import { Tasks } from '@/pages/tasks';
-import { CalendarPage } from '@/pages/calendar';
-import { LoginPage } from '@/pages/login';
-import { RegisterPage } from '@/pages/register';
-import { ExampleDashboard } from '@/pages/examples/dashboard';
-import { ExampleTable } from '@/pages/examples/table';
-import { ExampleCard } from '@/pages/examples/card';
-import { Form } from '@/pages/examples/form';
-import { Blank } from '@/pages/examples/blank';
+import { Dashboard } from '@/pages/task/Dashboard';
+import { AdminDashboard } from '@/pages/admin/AdminDashboard';
+import { Users } from '@/pages/admin/Users';
+import { Profile } from '@/pages/Profile';
+import { Tasks } from '@/pages/task/Tasks';
+import { CalendarPage } from '@/pages/task/Calendar';
+import { LoginPage } from '@/pages/Login';
+import { RegisterPage } from '@/pages/Register';
+import { ExampleDashboard } from '@/pages/examples/Dashboard';
+import { ExampleTable } from '@/pages/examples/Table';
+import { ExampleCard } from '@/pages/examples/Card';
+import { Form } from '@/pages/examples/Form';
+import { Blank } from '@/pages/examples/Blank';
 
 import { ProtectedRoute, AdminOnlyRoute } from '@/components/protected-route';
 
@@ -29,10 +29,10 @@ export function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Dashboard />} />
-                <Route path="admin-dashboard" element={
+                <Route path="admin/dashboard" element={
                   <AdminOnlyRoute><AdminDashboard /></AdminOnlyRoute>
                 } />
-                <Route path="users" element={
+                <Route path="admin/users" element={
                   <AdminOnlyRoute>
                     <Users />
                   </AdminOnlyRoute>

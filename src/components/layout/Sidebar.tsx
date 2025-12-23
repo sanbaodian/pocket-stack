@@ -45,13 +45,13 @@ const menuItems: MenuItem[] = [
   },
   {
     title: '仪表盘',
-    path: '/admin-dashboard',
+    path: '/admin/dashboard',
     icon: ChartLineData01Icon,
     adminOnly: true,
   },
   {
     title: '用户管理',
-    path: '/users',
+    path: '/admin/users',
     icon: UserIcon,
     adminOnly: true,
   },
